@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/MultipleLayerSelection" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
