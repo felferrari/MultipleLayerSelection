@@ -14,66 +14,20 @@ class MultiLayerSelection(QgsMapTool):
         self.active = False
         QgsMapTool.__init__(self, self.canvas)
         self.setAction(action)
-        self.rubberBand = QgsRubberBand(self.canvas, QGis.Polygon)
-        self.rubberBand.setColor(Qt.red)
-        self.rubberBand.setWidth(1)
-        self.reset()
-    
-    def reset(self):
-        self.startPoint = self.endPoint = None
-        self.isEmittingPoint = False
-        self.rubberBand.reset(QGis.Polygon)
     
     def canvasPressEvent(self, e):
-        self.startPoint = self.toMapCoordinates(e.pos())
-        self.endPoint = self.startPoint
-        self.isEmittingPoint = True
-        self.showRect(self.startPoint, self.endPoint)
-    
-    def canvasReleaseEvent(self, e):
-        self.isEmittingPoint = False
-        r = self.rectangle()
-    
-    def canvasMoveEvent(self, e):
-        if not self.isEmittingPoint:
-            return
-        self.endPoint = self.toMapCoordinates( e.pos() )
-        self.showRect(self.startPoint, self.endPoint)
-    
-    def showRect(self, startPoint, endPoint):
-        self.rubberBand.reset(QGis.Polygon)
-        if startPoint.x() == endPoint.x() or startPoint.y() == endPoint.y():
-            return
-        point1 = QgsPoint(startPoint.x(), startPoint.y())
-        point2 = QgsPoint(startPoint.x(), endPoint.y())
-        point3 = QgsPoint(endPoint.x(), endPoint.y())
-        point4 = QgsPoint(endPoint.x(), startPoint.y())
-    
-        self.rubberBand.addPoint(point1, False)
-        self.rubberBand.addPoint(point2, False)
-        self.rubberBand.addPoint(point3, False)
-        self.rubberBand.addPoint(point4, True)    # true to update canvas
-        self.rubberBand.show()
-    
-    def rectangle(self):
-        if self.startPoint is None or self.endPoint is None:
-            return None
-        elif self.startPoint.x() == self.endPoint.x() or self.startPoint.y() == self.endPoint.y():
-            return None
-    
-        return QgsRectangle(self.startPoint, self.endPoint)
+        p = self.toMapCoordinates(e.pos())
+        layers = self.canvas.layers()
+        w = self.canvas.mapUnitsPerPixel() * 3
+        rect = QgsRectangle(p.x()-w, p.y()-w, p.x()+w, p.y()+w)
+        for layer in layers:
+            lRect = self.canvas.mapRenderer().mapToLayerCoordinates(layer, rect)
+            layer.select(lRect, False)
     
     def deactivate(self):
-        print self.canvas.mapTool()
-        QgsMapTool.deactivate(self)
-
+        if self is not None:
+            QgsMapTool.deactivate(self)
         
     def activate(self):
-        print "act"
-        self.canvas.mapTool().action().setChecked(False)
-        self.canvas.mapTool().deactivate()
         QgsMapTool.activate(self)
-        
-        
-
     

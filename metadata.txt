@@ -9,9 +9,9 @@
 [general]
 name=Multiple Layer Selection
 qgisMinimumVersion=2.0
-description=Allow the selection of features of multiple layers
-version=0.1
-author=Felipe Ferrari
+description=Allow the selection/deselection of features of multiple layers
+version=0.3
+author=Felipe Ferrari and Luiz Andrade
 email=ferrari@gmail.com
 
 # End of mandatory metadata
@@ -22,11 +22,11 @@ email=ferrari@gmail.com
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=
+tags=different,layer,selection,feature,multiple,select,deselect,rectangle,point,click,mouse
 
-homepage=
-tracker=
-repository=
+homepage=http://hub.qgis.org/projects/multilayerselect
+tracker=http://hub.qgis.org/projects/multilayerselect
+repository=https://github.com/felferrari/MultipleLayerSelection
 icon=icon.png
 # experimental flag
 experimental=True

@@ -7,13 +7,16 @@ from qgis.gui import *
 from qgis.core import *
 from PyQt4.Qt import *
 
-class MultiLayerSelection(QgsMapTool):
+class MultiLayerRectangleSelection(QgsMapTool):
 
-    def __init__(self, canvas):
+    def __init__(self, canvas, action):
         self.canvas = canvas
-        QgsMapToolEmitPoint.__init__(self, self.canvas)
+        self.active = False
+        QgsMapTool.__init__(self, self.canvas)
+        self.setAction(action)
         self.rubberBand = QgsRubberBand(self.canvas, QGis.Polygon)
-        self.rubberBand.setColor(Qt.red)
+        mFillColor = QColor( 254, 178, 76, 63 );
+        self.rubberBand.setColor(mFillColor)
         self.rubberBand.setWidth(1)
         self.reset()
     
@@ -31,6 +34,13 @@ class MultiLayerSelection(QgsMapTool):
     def canvasReleaseEvent(self, e):
         self.isEmittingPoint = False
         r = self.rectangle()
+        layers = self.canvas.layers()
+        for layer in layers:
+            if r is not None:
+                lRect = self.canvas.mapRenderer().mapToLayerCoordinates(layer, r)
+                layer.select(lRect, False)
+            
+        self.rubberBand.hide()
     
     def canvasMoveEvent(self, e):
         if not self.isEmittingPoint:
@@ -62,6 +72,9 @@ class MultiLayerSelection(QgsMapTool):
         return QgsRectangle(self.startPoint, self.endPoint)
     
     def deactivate(self):
-        if self is not None:
-            QgsMapTool.deactivate(self)
-        self.emit(SIGNAL("deactivated()"))
+        self.rubberBand.hide()
+        QgsMapTool.deactivate(self)
+        
+    def activate(self):
+        QgsMapTool.activate(self)
+    
