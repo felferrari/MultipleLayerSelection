@@ -21,7 +21,9 @@ class MultiLayerSelection(QgsMapTool):
         w = self.canvas.mapUnitsPerPixel() * 3
         rect = QgsRectangle(p.x()-w, p.y()-w, p.x()+w, p.y()+w)
         for layer in layers:
-            lRect = self.canvas.mapRenderer().mapToLayerCoordinates(layer, rect)
+            if layer.type() == QgsMapLayer.RasterLayer:
+                continue
+            lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, rect)
             layer.select(lRect, False)
     
     def deactivate(self):

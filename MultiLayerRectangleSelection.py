@@ -36,8 +36,10 @@ class MultiLayerRectangleSelection(QgsMapTool):
         r = self.rectangle()
         layers = self.canvas.layers()
         for layer in layers:
+            if layer.type() == QgsMapLayer.RasterLayer:
+                continue
             if r is not None:
-                lRect = self.canvas.mapRenderer().mapToLayerCoordinates(layer, r)
+                lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, r)
                 layer.select(lRect, False)
             
         self.rubberBand.hide()
