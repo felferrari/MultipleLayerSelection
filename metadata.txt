@@ -8,9 +8,9 @@
 
 [general]
 name=Multiple Layer Selection
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
 description=Allow the selection/deselection of features of multiple layers
-version=0.3
+version=1.0
 author=Felipe Ferrari and Luiz Andrade
 email=ferrari@gmail.com
 
