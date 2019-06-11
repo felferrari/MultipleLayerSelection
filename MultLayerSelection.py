@@ -19,18 +19,20 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.gui import *
-from qgis.core import *
-from MultiLayerSelection import MultiLayerSelection
-from MultiLayerRectangleSelection import MultiLayerRectangleSelection
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
+from qgis.PyQt.QtWidgets import QToolButton, QAction
+from qgis.PyQt.QtGui import QIcon
+from qgis.core import QgsMapLayer
+from .MultiLayerSelection import MultiLayerSelection
+from .MultiLayerRectangleSelection import MultiLayerRectangleSelection
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 
 import os.path
 
-class MultLayerSelection:
+class MultLayerSelection(object):
     """QGIS Plugin Implementation."""
     
     def __init__(self, iface):

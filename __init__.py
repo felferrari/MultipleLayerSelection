@@ -19,6 +19,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
 
 # noinspection PyPep8Naming
@@ -28,5 +29,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from MultLayerSelection import MultLayerSelection
+    from .MultLayerSelection import MultLayerSelection
     return MultLayerSelection(iface)
