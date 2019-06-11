@@ -44,7 +44,7 @@ Temporary Items
 .apdisk
 
 # Python
-.pyc
-.*.pyc
-.pydevproject
-.project
+*.pyc
+__pycache__/
+*.pydevproject
+*.project
