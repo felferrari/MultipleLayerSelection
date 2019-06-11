@@ -48,3 +48,6 @@ Temporary Items
 __pycache__/
 *.pydevproject
 *.project
+
+# VSCode
+*.json
