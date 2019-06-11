@@ -125,6 +125,8 @@ class MultLayerSelection:
         self.selectionButton.setDefaultAction(self.selectionButton.sender())
         layers = self.iface.mapCanvas().layers()
         for layer in layers:
+            if layer.type() == QgsMapLayer.RasterLayer:
+                continue
             layer.removeSelection()
 
     def run(self, b):
