@@ -3,9 +3,8 @@ Created on 12/10/2014
 
 @author: ferrari
 '''
-from qgis.gui import *
-from qgis.core import *
-from PyQt4.Qt import *
+from qgis.core import QgsRectangle, QgsMapLayer
+from qgis.gui import QgsMapTool
 
 class MultiLayerSelection(QgsMapTool):
 
@@ -24,12 +23,22 @@ class MultiLayerSelection(QgsMapTool):
             if layer.type() == QgsMapLayer.RasterLayer:
                 continue
             lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, rect)
-            layer.select(lRect, False)
+            layer.selectByRect(lRect, False)
     
     def deactivate(self):
-        if self is not None:
-            QgsMapTool.deactivate(self)
+        try:
+            if self is not None:
+                QgsMapTool.deactivate(self)
+        except:
+            pass
         
     def activate(self):
         QgsMapTool.activate(self)
+        try:
+            self.selectionButton.setDefaultAction(self.sender())
+        except:
+            pass
+
+    def unload(self):
+        self.deactivate()        
     

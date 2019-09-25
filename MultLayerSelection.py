@@ -19,18 +19,20 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.gui import *
-from qgis.core import *
-from MultiLayerSelection import MultiLayerSelection
-from MultiLayerRectangleSelection import MultiLayerRectangleSelection
+from __future__ import absolute_import
+from builtins import object
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
+from qgis.PyQt.QtWidgets import QToolButton, QAction
+from qgis.PyQt.QtGui import QIcon
+from qgis.core import QgsMapLayer
+from .MultiLayerSelection import MultiLayerSelection
+from .MultiLayerRectangleSelection import MultiLayerRectangleSelection
 # Initialize Qt resources from file resources.py
-import resources
+from . import resources
 
 import os.path
 
-class MultLayerSelection:
+class MultLayerSelection(object):
     """QGIS Plugin Implementation."""
     
     def __init__(self, iface):
@@ -61,6 +63,7 @@ class MultLayerSelection:
                 
         self.toolbar = self.iface.addToolBar(u'MultipleSelection')
         self.toolbar.setObjectName(u'MultipleSelection')
+        self.actionList = []
 
     def createToolButton(self, parent, text):
         button = QToolButton(parent)
@@ -70,24 +73,19 @@ class MultLayerSelection:
         parent.addWidget(button)
         return button
     
-    def createAction(self, icon_path, text, callback):
+    def createAction(self, icon_path, text, callback, checkable=True):
         action = QAction(
             QIcon(icon_path),
             text,
             self.iface.mainWindow())
         # connect the action to the run method
-        action.setCheckable(True)
-        action.toggled.connect(callback)
-        return action
-    
-    def createClearAction(self, icon_path, text):
-        action = QAction(
-            QIcon(icon_path),
-            text,
-            self.iface.mainWindow())
-        # connect the action to the run method
-        action.setCheckable(False)
-        action.triggered.connect(self.clear)
+        action.setCheckable(checkable)
+        if checkable:
+            action.toggled.connect(callback)
+        else:
+            action.triggered.connect(callback)
+        self.iface.registerMainWindowAction(action, '')
+        self.actionList.append(action)
         return action
  
     def initGui(self):
@@ -102,8 +100,10 @@ class MultLayerSelection:
                                                       self.runRectangle)
 
         # Create action that will start plugin configuration
-        self.actionClear = self.createClearAction(":/plugins/MultipleLayerSelection/icon_clear.png",
-                                                      u"Clear selections")
+        self.actionClear = self.createAction(":/plugins/MultipleLayerSelection/icon_clear.png",
+                                                      u"Clear selections",
+                                                      self.clear,
+                                                      checkable=False)
                 
         self.tool = MultiLayerSelection(self.iface.mapCanvas(), self.actionCriar) 
         self.toolRectangle = MultiLayerRectangleSelection(self.iface.mapCanvas(), self.actionCriarRectangle) 
@@ -118,11 +118,19 @@ class MultLayerSelection:
     def unload(self):
         # Remove the plugin menu item and icon
         self.iface.mainWindow().removeToolBar(self.toolbar)
+        for action in self.actionList:
+            try:
+                self.iface.unregisterMainWindowAction(action)
+            except:
+                pass
+        self.tool.deactivate()
+        self.toolRectangle.deactivate()
         
     def clear(self):
-        self.actionCriar.setChecked(False)
-        self.actionCriarRectangle.setChecked(False)
-        self.selectionButton.setDefaultAction(self.selectionButton.sender())
+        try:
+            self.selectionButton.setDefaultAction(self.actionClear)
+        except:
+            pass
         layers = self.iface.mapCanvas().layers()
         for layer in layers:
             if layer.type() == QgsMapLayer.RasterLayer:
@@ -130,17 +138,21 @@ class MultLayerSelection:
             layer.removeSelection()
 
     def run(self, b):
-        self.actionCriarRectangle.setChecked(False)
-        self.selectionButton.setDefaultAction(self.selectionButton.sender())
         if b:
+            try:
+                self.selectionButton.setDefaultAction(self.actionCriar)
+            except:
+                pass
             self.iface.mapCanvas().setMapTool(self.tool)
         else:
             self.iface.mapCanvas().unsetMapTool(self.tool)
 
     def runRectangle(self, b):
-        self.actionCriar.setChecked(False)
-        self.selectionButton.setDefaultAction(self.selectionButton.sender())
         if b:
+            try:
+                self.selectionButton.setDefaultAction(self.actionCriarRectangle)
+            except:
+                pass
             self.iface.mapCanvas().setMapTool(self.toolRectangle)
         else:
             self.iface.mapCanvas().unsetMapTool(self.toolRectangle)

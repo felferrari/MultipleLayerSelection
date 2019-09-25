@@ -3,9 +3,9 @@ Created on 12/10/2014
 
 @author: ferrari
 '''
-from qgis.gui import *
-from qgis.core import *
-from PyQt4.Qt import *
+from qgis.core import QgsMapLayer, QgsPointXY, QgsRectangle, QgsWkbTypes
+from qgis.gui import QgsMapTool, QgsRubberBand
+from qgis.PyQt.QtGui import QColor
 
 class MultiLayerRectangleSelection(QgsMapTool):
 
@@ -14,7 +14,7 @@ class MultiLayerRectangleSelection(QgsMapTool):
         self.active = False
         QgsMapTool.__init__(self, self.canvas)
         self.setAction(action)
-        self.rubberBand = QgsRubberBand(self.canvas, QGis.Polygon)
+        self.rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.PolygonGeometry)
         mFillColor = QColor( 254, 178, 76, 63 );
         self.rubberBand.setColor(mFillColor)
         self.rubberBand.setWidth(1)
@@ -23,7 +23,7 @@ class MultiLayerRectangleSelection(QgsMapTool):
     def reset(self):
         self.startPoint = self.endPoint = None
         self.isEmittingPoint = False
-        self.rubberBand.reset(QGis.Polygon)
+        self.rubberBand.reset(QgsWkbTypes.PolygonGeometry)
     
     def canvasPressEvent(self, e):
         self.startPoint = self.toMapCoordinates(e.pos())
@@ -40,7 +40,7 @@ class MultiLayerRectangleSelection(QgsMapTool):
                 continue
             if r is not None:
                 lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, r)
-                layer.select(lRect, False)
+                layer.selectByRect(lRect, False)
             
         self.rubberBand.hide()
     
@@ -51,13 +51,13 @@ class MultiLayerRectangleSelection(QgsMapTool):
         self.showRect(self.startPoint, self.endPoint)
     
     def showRect(self, startPoint, endPoint):
-        self.rubberBand.reset(QGis.Polygon)
+        self.rubberBand.reset(QgsWkbTypes.PolygonGeometry)
         if startPoint.x() == endPoint.x() or startPoint.y() == endPoint.y():
             return
-        point1 = QgsPoint(startPoint.x(), startPoint.y())
-        point2 = QgsPoint(startPoint.x(), endPoint.y())
-        point3 = QgsPoint(endPoint.x(), endPoint.y())
-        point4 = QgsPoint(endPoint.x(), startPoint.y())
+        point1 = QgsPointXY(startPoint.x(), startPoint.y())
+        point2 = QgsPointXY(startPoint.x(), endPoint.y())
+        point3 = QgsPointXY(endPoint.x(), endPoint.y())
+        point4 = QgsPointXY(endPoint.x(), startPoint.y())
     
         self.rubberBand.addPoint(point1, False)
         self.rubberBand.addPoint(point2, False)
@@ -74,9 +74,16 @@ class MultiLayerRectangleSelection(QgsMapTool):
         return QgsRectangle(self.startPoint, self.endPoint)
     
     def deactivate(self):
-        self.rubberBand.hide()
-        QgsMapTool.deactivate(self)
+        self.rubberBand.reset()
+        try:
+            if self is not None:
+                QgsMapTool.deactivate(self)
+        except:
+            pass
         
     def activate(self):
         QgsMapTool.activate(self)
+
+    def unload(self):
+        self.deactivate()
     

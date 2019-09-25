@@ -43,7 +43,14 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Byte-compiled / optimized / DLL files
+# Python
+*.pyc
 __pycache__/
-*.py[cod]
+*.pydevproject
+*.project
+
+# VSCode
+*.json
+
+#Linux
 .directory
