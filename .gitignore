@@ -51,3 +51,6 @@ __pycache__/
 
 # VSCode
 *.json
+
+#Linux
+.directory

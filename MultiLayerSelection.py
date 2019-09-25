@@ -26,9 +26,19 @@ class MultiLayerSelection(QgsMapTool):
             layer.selectByRect(lRect, False)
     
     def deactivate(self):
-        if self is not None:
-            QgsMapTool.deactivate(self)
+        try:
+            if self is not None:
+                QgsMapTool.deactivate(self)
+        except:
+            pass
         
     def activate(self):
         QgsMapTool.activate(self)
+        try:
+            self.selectionButton.setDefaultAction(self.sender())
+        except:
+            pass
+
+    def unload(self):
+        self.deactivate()        
     

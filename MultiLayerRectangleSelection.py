@@ -74,9 +74,16 @@ class MultiLayerRectangleSelection(QgsMapTool):
         return QgsRectangle(self.startPoint, self.endPoint)
     
     def deactivate(self):
-        self.rubberBand.hide()
-        QgsMapTool.deactivate(self)
+        self.rubberBand.reset()
+        try:
+            if self is not None:
+                QgsMapTool.deactivate(self)
+        except:
+            pass
         
     def activate(self):
         QgsMapTool.activate(self)
+
+    def unload(self):
+        self.deactivate()
     
