@@ -1,10 +1,4 @@
-Plugin Builder Results
 
-Your plugin Ntrip was created in:
-    C:\Users\Sec-SDT\Documents\qgis\plugins\casters\Ntrip
-
-Your QGIS plugin directory is located at:
-    C:/Users/Sec-SDT/.qgis2/python/plugins
 
 What's Next:
 
