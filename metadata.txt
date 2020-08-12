@@ -13,7 +13,7 @@ description=Allow the selection/deselection of features of multiple layers
 version=2.0
 author=Felipe Ferrari and Luiz Andrade
 email=ferrari@gmail.com
-
+about=Allow the selection/deselection of features of multiple layers
 # End of mandatory metadata
 
 # Optional items:
