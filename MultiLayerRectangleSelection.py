@@ -3,9 +3,11 @@ Created on 12/10/2014
 
 @author: ferrari
 '''
-from qgis.core import QgsMapLayer, QgsPointXY, QgsRectangle, QgsWkbTypes
+from qgis.core import (
+    QgsMapLayer, QgsPointXY, QgsRectangle, QgsWkbTypes, QgsVectorLayer, Qgis)
 from qgis.gui import QgsMapTool, QgsRubberBand
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import Qt
 
 class MultiLayerRectangleSelection(QgsMapTool):
 
@@ -19,37 +21,46 @@ class MultiLayerRectangleSelection(QgsMapTool):
         self.rubberBand.setColor(mFillColor)
         self.rubberBand.setWidth(1)
         self.reset()
-    
+
     def reset(self):
         self.startPoint = self.endPoint = None
         self.isEmittingPoint = False
         self.rubberBand.reset(QgsWkbTypes.PolygonGeometry)
-    
+
     def canvasPressEvent(self, e):
         self.startPoint = self.toMapCoordinates(e.pos())
         self.endPoint = self.startPoint
         self.isEmittingPoint = True
         self.showRect(self.startPoint, self.endPoint)
-    
+
     def canvasReleaseEvent(self, e):
         self.isEmittingPoint = False
         r = self.rectangle()
         layers = self.canvas.layers()
+        if Qgis.QGIS_VERSION_INT < 32200:
+            select_behavior_obj = QgsVectorLayer.SelectBehavior
+        else:
+            select_behavior_obj = Qgis.SelectBehavior
+        if e.modifiers() == Qt.ShiftModifier:
+            select_behavior = select_behavior_obj.AddToSelection
+        elif e.modifiers() == Qt.ControlModifier:
+            select_behavior = select_behavior_obj.RemoveFromSelection
+        else:
+            select_behavior = select_behavior_obj.SetSelection
         for layer in layers:
             if layer.type() == QgsMapLayer.RasterLayer:
                 continue
             if r is not None:
                 lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, r)
-                layer.selectByRect(lRect, False)
-            
+                layer.selectByRect(lRect, select_behavior)
         self.rubberBand.hide()
-    
+
     def canvasMoveEvent(self, e):
         if not self.isEmittingPoint:
             return
         self.endPoint = self.toMapCoordinates( e.pos() )
         self.showRect(self.startPoint, self.endPoint)
-    
+
     def showRect(self, startPoint, endPoint):
         self.rubberBand.reset(QgsWkbTypes.PolygonGeometry)
         if startPoint.x() == endPoint.x() or startPoint.y() == endPoint.y():
@@ -58,21 +69,21 @@ class MultiLayerRectangleSelection(QgsMapTool):
         point2 = QgsPointXY(startPoint.x(), endPoint.y())
         point3 = QgsPointXY(endPoint.x(), endPoint.y())
         point4 = QgsPointXY(endPoint.x(), startPoint.y())
-    
+
         self.rubberBand.addPoint(point1, False)
         self.rubberBand.addPoint(point2, False)
         self.rubberBand.addPoint(point3, False)
         self.rubberBand.addPoint(point4, True)    # true to update canvas
         self.rubberBand.show()
-    
+
     def rectangle(self):
         if self.startPoint is None or self.endPoint is None:
             return None
         elif self.startPoint.x() == self.endPoint.x() or self.startPoint.y() == self.endPoint.y():
             return None
-    
+
         return QgsRectangle(self.startPoint, self.endPoint)
-    
+
     def deactivate(self):
         self.rubberBand.reset()
         try:
@@ -80,10 +91,9 @@ class MultiLayerRectangleSelection(QgsMapTool):
                 QgsMapTool.deactivate(self)
         except:
             pass
-        
+
     def activate(self):
         QgsMapTool.activate(self)
 
     def unload(self):
         self.deactivate()
-    
