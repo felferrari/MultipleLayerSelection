@@ -23,7 +23,7 @@ class MultiLayerSelection(QgsMapTool):
             if layer.type() == QgsMapLayer.RasterLayer:
                 continue
             lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, rect)
-            layer.selectByRect(lRect, False)
+            layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
     
     def deactivate(self):
         try:
