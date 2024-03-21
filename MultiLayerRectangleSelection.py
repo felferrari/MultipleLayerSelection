@@ -40,7 +40,7 @@ class MultiLayerRectangleSelection(QgsMapTool):
                 continue
             if r is not None:
                 lRect = self.canvas.mapSettings().mapToLayerCoordinates(layer, r)
-                layer.selectByRect(lRect, False)
+                layer.selectByRect(lRect, layer.SelectBehavior.SetSelection)
             
         self.rubberBand.hide()
     
